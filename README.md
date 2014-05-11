@@ -1,5 +1,7 @@
 # AsyncRequests
 
+[![Build Status](https://travis-ci.org/inglesp/async-requests.svg?branch=master)](https://travis-ci.org/inglesp/async-requests)
+
 This is a proof of concept to demonstrate how [Requests](python-requests.org)
 can be adapted to work with
 [asyncio](https://docs.python.org/3.4/library/asyncio.html), using
