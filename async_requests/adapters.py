@@ -25,7 +25,8 @@ class AsyncHTTPAdapter(HTTPAdapter):
         r = self.build_response(request, resp)
 
         # TODO This should handle streaming
-        r._content = yield from r.raw.read_and_close()
+        # Convert the content from bytearray to bytes, to keep chardet happy.
+        r._content = bytes((yield from r.raw.read_and_close()))
         return r
 
     def build_response(self, req, resp):
