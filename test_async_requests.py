@@ -260,7 +260,10 @@ class RequestsTestCase(unittest.TestCase):
 
         def get_netrc_auth_mock(url):
             return auth
-        async_requests.sessions.get_netrc_auth = get_netrc_auth_mock
+
+        import requests
+        requests.sessions.get_netrc_auth = get_netrc_auth_mock
+
         task = asyncio.Task(async_requests.get(url))
         loop = asyncio.get_event_loop()
         r = loop.run_until_complete(task)

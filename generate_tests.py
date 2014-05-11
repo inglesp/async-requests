@@ -111,3 +111,6 @@ if __name__ == '__main__':
 
     with open('test_async_requests.py', 'w') as f:
         f.write(astunparse.unparse(tree))
+
+    print('Generated test_async_requests.py')
+    print('Manual tweak required for test_basicauth_with_netrc')
