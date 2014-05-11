@@ -24,9 +24,12 @@ class AsyncHTTPAdapter(HTTPAdapter):
         )
         r = self.build_response(request, resp)
 
-        # TODO This should handle streaming
-        # Convert the content from bytearray to bytes, to keep chardet happy.
-        r._content = bytes((yield from r.raw.read_and_close()))
+        if method.lower() == 'head':
+            r.close()
+        else:
+            # TODO This should handle streaming
+            # Convert the content from bytearray to bytes, to keep chardet happy.
+            r._content = bytes((yield from r.raw.read_and_close()))
         return r
 
     def build_response(self, req, resp):
