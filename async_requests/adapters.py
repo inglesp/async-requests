@@ -19,7 +19,8 @@ class AsyncHTTPAdapter(HTTPAdapter):
             method,
             url,
             data=request.body,
-            headers=request.headers.items()
+            headers=request.headers.items(),
+            allow_redirects=False,
         )
         r = self.build_response(request, resp)
 
