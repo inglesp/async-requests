@@ -4,6 +4,7 @@ from datetime import datetime
 from requests.sessions import *
 
 from .adapters import AsyncHTTPAdapter
+from .cookies import extract_cookies_to_jar
 
 
 class AsyncSessionRedirectMixin(object):
