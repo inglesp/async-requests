@@ -359,7 +359,10 @@ class RequestsTestCase(unittest.TestCase):
 
     def test_POSTBIN_GET_POST_FILES(self):
         url = httpbin('post')
-        post1 = async_requests.post(url).raise_for_status()
+        task = asyncio.Task(async_requests.post(url))
+        loop = asyncio.get_event_loop()
+        post1 = loop.run_until_complete(task)
+        post1.raise_for_status()
         task = asyncio.Task(async_requests.post(url, data={'some': 'data'}))
         loop = asyncio.get_event_loop()
         post1 = loop.run_until_complete(task)
@@ -380,7 +383,10 @@ class RequestsTestCase(unittest.TestCase):
 
     def test_POSTBIN_GET_POST_FILES_WITH_DATA(self):
         url = httpbin('post')
-        post1 = async_requests.post(url).raise_for_status()
+        task = asyncio.Task(async_requests.post(url))
+        loop = asyncio.get_event_loop()
+        post1 = loop.run_until_complete(task)
+        post1.raise_for_status()
         task = asyncio.Task(async_requests.post(url, data={'some': 'data'}))
         loop = asyncio.get_event_loop()
         post1 = loop.run_until_complete(task)
@@ -402,8 +408,14 @@ class RequestsTestCase(unittest.TestCase):
     def test_conflicting_post_params(self):
         url = httpbin('post')
         with open('requirements.txt') as f:
-            pytest.raises(ValueError, 'requests.post(url, data=\'[{"some": "data"}]\', files={\'some\': f})')
-            pytest.raises(ValueError, 'requests.post(url, data=u\'[{"some": "data"}]\', files={\'some\': f})')
+            with pytest.raises(ValueError):
+                task = asyncio.Task(async_requests.post(url, data='[{"some": "data"}]', files={'some': f}))
+                loop = asyncio.get_event_loop()
+                loop.run_until_complete(task)
+            with pytest.raises(ValueError):
+                task = asyncio.Task(async_requests.post(url, data='[{"some": "data"}]', files={'some': f}))
+                loop = asyncio.get_event_loop()
+                loop.run_until_complete(task)
 
     def test_request_ok_set(self):
         task = asyncio.Task(async_requests.get(httpbin('status', '404')))

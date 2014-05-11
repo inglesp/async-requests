@@ -346,7 +346,11 @@ class RequestsTestCase(unittest.TestCase):
     def test_POSTBIN_GET_POST_FILES(self):
 
         url = httpbin('post')
-        post1 = requests.post(url).raise_for_status()
+        # This is split over two lines to make generation of
+        # test_async_requests.py easier.
+        # post1 = requests.post(url).raise_for_status()
+        post1 = requests.post(url)
+        post1.raise_for_status()
 
         post1 = requests.post(url, data={'some': 'data'})
         assert post1.status_code == 200
@@ -364,7 +368,11 @@ class RequestsTestCase(unittest.TestCase):
     def test_POSTBIN_GET_POST_FILES_WITH_DATA(self):
 
         url = httpbin('post')
-        post1 = requests.post(url).raise_for_status()
+        # This is split over two lines to make generation of
+        # test_async_requests.py easier.
+        # post1 = requests.post(url).raise_for_status()
+        post1 = requests.post(url)
+        post1.raise_for_status()
 
         post1 = requests.post(url, data={'some': 'data'})
         assert post1.status_code == 200
@@ -382,8 +390,14 @@ class RequestsTestCase(unittest.TestCase):
     def test_conflicting_post_params(self):
         url = httpbin('post')
         with open('requirements.txt') as f:
-            pytest.raises(ValueError, "requests.post(url, data='[{\"some\": \"data\"}]', files={'some': f})")
-            pytest.raises(ValueError, "requests.post(url, data=u'[{\"some\": \"data\"}]', files={'some': f})")
+            # These are rewritten to use context managers to make generation of
+            # test_async_requests.py easier.
+            # pytest.raises(ValueError, "requests.post(url, data='[{\"some\": \"data\"}]', files={'some': f})")
+            # pytest.raises(ValueError, "requests.post(url, data=u'[{\"some\": \"data\"}]', files={'some': f})")
+            with pytest.raises(ValueError):
+                requests.post(url, data='[{\"some\": \"data\"}]', files={'some': f})
+            with pytest.raises(ValueError):
+                requests.post(url, data=u'[{\"some\": \"data\"}]', files={'some': f})
 
     def test_request_ok_set(self):
         r = requests.get(httpbin('status', '404'))
