@@ -7,8 +7,9 @@ module_translations = {
 
 class_translations = {
     'HTTPAdapter': 'AsyncHTTPAdapter',
-    'Session': 'AsyncSession',
+    'HTTPDigestAuth': 'AsyncHTTPDigestAuth',
     'Response': 'AsyncResponse',
+    'Session': 'AsyncSession',
 }
 
 methods = ['get', 'head', 'put', 'patch', 'post', 'send', 'request']
@@ -113,4 +114,6 @@ if __name__ == '__main__':
         f.write(astunparse.unparse(tree))
 
     print('Generated test_async_requests.py')
-    print('Manual tweak required for test_basicauth_with_netrc')
+    print('Manual tweaks required for:')
+    print('  test_basicauth_with_netrc')
+    print('  test_prepared_request_hook')

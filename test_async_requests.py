@@ -9,7 +9,7 @@ import unittest
 import async_requests
 import pytest
 from async_requests.adapters import AsyncHTTPAdapter
-from async_requests.auth import HTTPDigestAuth
+from async_requests.auth import AsyncHTTPDigestAuth
 from async_requests.compat import Morsel, cookielib, getproxies, str, urljoin, urlparse
 from async_requests.cookies import cookiejar_from_dict, morsel_to_cookie
 from async_requests.exceptions import InvalidURL, MissingSchema
@@ -284,7 +284,7 @@ class RequestsTestCase(unittest.TestCase):
         assert (r.status_code == 401)
 
     def test_DIGEST_HTTP_200_OK_GET(self):
-        auth = HTTPDigestAuth('user', 'pass')
+        auth = AsyncHTTPDigestAuth('user', 'pass')
         url = httpbin('digest-auth', 'auth', 'user', 'pass')
         task = asyncio.Task(async_requests.get(url, auth=auth))
         loop = asyncio.get_event_loop()
@@ -295,7 +295,7 @@ class RequestsTestCase(unittest.TestCase):
         r = loop.run_until_complete(task)
         assert (r.status_code == 401)
         s = async_requests.session()
-        s.auth = HTTPDigestAuth('user', 'pass')
+        s.auth = AsyncHTTPDigestAuth('user', 'pass')
         task = asyncio.Task(s.get(url))
         loop = asyncio.get_event_loop()
         r = loop.run_until_complete(task)
@@ -303,7 +303,7 @@ class RequestsTestCase(unittest.TestCase):
 
     def test_DIGEST_AUTH_RETURNS_COOKIE(self):
         url = httpbin('digest-auth', 'auth', 'user', 'pass')
-        auth = HTTPDigestAuth('user', 'pass')
+        auth = AsyncHTTPDigestAuth('user', 'pass')
         task = asyncio.Task(async_requests.get(url))
         loop = asyncio.get_event_loop()
         r = loop.run_until_complete(task)
@@ -315,7 +315,7 @@ class RequestsTestCase(unittest.TestCase):
 
     def test_DIGEST_AUTH_SETS_SESSION_COOKIES(self):
         url = httpbin('digest-auth', 'auth', 'user', 'pass')
-        auth = HTTPDigestAuth('user', 'pass')
+        auth = AsyncHTTPDigestAuth('user', 'pass')
         s = async_requests.AsyncSession()
         task = asyncio.Task(s.get(url, auth=auth))
         loop = asyncio.get_event_loop()
@@ -323,7 +323,7 @@ class RequestsTestCase(unittest.TestCase):
         assert (s.cookies['fake'] == 'fake_value')
 
     def test_DIGEST_STREAM(self):
-        auth = HTTPDigestAuth('user', 'pass')
+        auth = AsyncHTTPDigestAuth('user', 'pass')
         url = httpbin('digest-auth', 'auth', 'user', 'pass')
         task = asyncio.Task(async_requests.get(url, auth=auth, stream=True))
         loop = asyncio.get_event_loop()
@@ -335,7 +335,7 @@ class RequestsTestCase(unittest.TestCase):
         assert (r.raw.read() == b'')
 
     def test_DIGESTAUTH_WRONG_HTTP_401_GET(self):
-        auth = HTTPDigestAuth('user', 'wrongpass')
+        auth = AsyncHTTPDigestAuth('user', 'wrongpass')
         url = httpbin('digest-auth', 'auth', 'user', 'pass')
         task = asyncio.Task(async_requests.get(url, auth=auth))
         loop = asyncio.get_event_loop()
@@ -353,7 +353,7 @@ class RequestsTestCase(unittest.TestCase):
         assert (r.status_code == 401)
 
     def test_DIGESTAUTH_QUOTES_QOP_VALUE(self):
-        auth = HTTPDigestAuth('user', 'pass')
+        auth = AsyncHTTPDigestAuth('user', 'pass')
         url = httpbin('digest-auth', 'auth', 'user', 'pass')
         task = asyncio.Task(async_requests.get(url, auth=auth))
         loop = asyncio.get_event_loop()
@@ -545,7 +545,7 @@ class RequestsTestCase(unittest.TestCase):
         assert (prep.hooks['response'] == [hook1])
 
     def test_prepared_request_hook(self):
-
+        @asyncio.coroutine
         def hook(resp, **kwargs):
             resp.hook_working = True
             return resp

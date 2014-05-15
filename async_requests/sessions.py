@@ -5,6 +5,7 @@ from requests.sessions import *
 
 from .adapters import AsyncHTTPAdapter
 from .cookies import extract_cookies_to_jar
+from .hooks import dispatch_hook
 
 
 class AsyncSessionRedirectMixin(object):
@@ -149,7 +150,7 @@ class AsyncSession(AsyncSessionRedirectMixin, Session):
         r.elapsed = datetime.utcnow() - start
 
         # Response manipulation hooks
-        r = dispatch_hook('response', hooks, r, **kwargs)
+        r = yield from dispatch_hook('response', hooks, r, **kwargs)
 
         # Persist cookies
         if r.history:
