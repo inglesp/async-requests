@@ -328,11 +328,12 @@ class RequestsTestCase(unittest.TestCase):
         task = asyncio.Task(async_requests.get(url, auth=auth, stream=True))
         loop = asyncio.get_event_loop()
         r = loop.run_until_complete(task)
-        assert (r.raw.read() != b'')
+        assert (not r._content_consumed)
+        r.close()
         task = asyncio.Task(async_requests.get(url, auth=auth, stream=False))
         loop = asyncio.get_event_loop()
         r = loop.run_until_complete(task)
-        assert (r.raw.read() == b'')
+        assert (r._content_consumed)
 
     def test_DIGESTAUTH_WRONG_HTTP_401_GET(self):
         auth = AsyncHTTPDigestAuth('user', 'wrongpass')
@@ -669,18 +670,6 @@ class RequestsTestCase(unittest.TestCase):
         td = r.elapsed
         total_seconds = ((td.microseconds + ((td.seconds + ((td.days * 24) * 3600)) * (10 ** 6))) / (10 ** 6))
         assert (total_seconds > 0.0)
-
-    def test_response_is_iterable(self):
-        r = async_requests.AsyncResponse()
-        io = StringIO.StringIO('abc')
-        read_ = io.read
-
-        def read_mock(amt, decode_content=None):
-            return read_(amt)
-        setattr(io, 'read', read_mock)
-        r.raw = io
-        assert next(iter(r))
-        io.close()
 
     def test_request_and_response_are_pickleable(self):
         task = asyncio.Task(async_requests.get(httpbin('get')))

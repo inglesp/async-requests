@@ -12,7 +12,7 @@ from .cookies import extract_cookies_to_jar
 
 class AsyncHTTPAdapter(HTTPAdapter):
     @asyncio.coroutine
-    def send(self, request, **kwargs):
+    def send(self, request, stream=False, **kwargs):
         method = request.method
         url = request.url
         resp = yield from aiohttp.request(
@@ -26,10 +26,9 @@ class AsyncHTTPAdapter(HTTPAdapter):
 
         if method.lower() == 'head':
             r.close()
-        else:
-            # TODO This should handle streaming
-            # Convert the content from bytearray to bytes, to keep chardet happy.
-            r._content = bytes((yield from r.raw.read_and_close()))
+        elif not stream:
+            yield from r.load_content()
+
         return r
 
     def build_response(self, req, resp):

@@ -12,7 +12,11 @@ class_translations = {
     'Session': 'AsyncSession',
 }
 
-methods = ['get', 'head', 'put', 'patch', 'post', 'send', 'request']
+tests_to_skip = [
+    'test_response_is_iterable'
+]
+
+methods_to_yield_from = ['get', 'head', 'put', 'patch', 'post', 'send', 'request']
 
 assign_template = """
 task = asyncio.Task({rhs})
@@ -77,7 +81,7 @@ class TestRequestsTransformer(ast.NodeTransformer):
     def visit_Expr(self, node):
         self.generic_visit(node)
         try:
-            if node.value.func.attr in methods:
+            if node.value.func.attr in methods_to_yield_from:
                 expr = astunparse.unparse(node)
                 new_source = expr_template.format(expr=expr)
                 new_node = ast.parse(new_source)
@@ -90,7 +94,7 @@ class TestRequestsTransformer(ast.NodeTransformer):
     def visit_Assign(self, node):
         self.generic_visit(node)
         try:
-            if node.value.func.attr in methods and \
+            if node.value.func.attr in methods_to_yield_from and \
                     astunparse.unparse(node.value.func).strip() != 'os.environ.get':
                 lhs = node.targets[0].id
                 rhs = astunparse.unparse(node.value).strip()
@@ -100,6 +104,13 @@ class TestRequestsTransformer(ast.NodeTransformer):
             else:
                 return node
         except AttributeError:
+            return node
+
+    def visit_FunctionDef(self, node):
+        if node.name in tests_to_skip:
+            return None
+        else:
+            self.generic_visit(node)
             return node
 
 if __name__ == '__main__':
@@ -117,3 +128,4 @@ if __name__ == '__main__':
     print('Manual tweaks required for:')
     print('  test_basicauth_with_netrc')
     print('  test_prepared_request_hook')
+    print('  test_DIGEST_STREAM')
